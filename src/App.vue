@@ -1,26 +1,107 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <router-view></router-view>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import { useUserStore } from './store/user'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+const userStore = useUserStore()
+userStore.getUserId()
+
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+body, html {
+  font-size: 10px;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji,BlinkMacSystemFont,Helvetica Neue,Arial,PingFang SC,PingFang TC,PingFang HK,Microsoft Yahei,Microsoft JhengHei;
+}
+ul, li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+a {
+  text-decoration: none;
+}
+:root {
+  --nomal-background-color:rgb(255,255,255);
+  --icon-color:rgb(90,90,90);
+  --icon-color-hover:rgb(51,51,51);
+  --input-color:rgb(51,51,51);
+  --input-background-color: rgb(247,247,247);
+  --multistage-toggle-background-color:rgb(247,247,247);
+  --toggle-item-background-color:rgb(255,255,255);
+  --header-background-color:rgb(255,255,255);
+  --aside-icon-color:rgb(51,51,51);
+  --side-bar-item-background-color:rgb(255,255,255);
+  --side-bar-item-background-color-hover:rgb(247,247,247);
+  --side-bar-bac-color:rgb(255,255,255);
+  --card-title-color:rgb(51,51,51);
+  --card-author-msg-color:rgb(92,92,92);
+  --card-author-msg-color-hover:rgb(51,51,51);
+  --container-bac-color:rgb(255,255,255);
+  --publish-bac-color:rgb(238,241,248);
+  --upload-container-bac-color:rgb(255,255,255);
+  --upload-img-icon-bac-color:rgb(250,250,250);
+  --upload-testarea-bac-color:rgb(255,255,255);
+  --upload-test-color:rgb(51,51,51);
+  --author-container-bac-color:rgb(255,255,255);
+  --article-user-name-color:rgb(133,133,133);
+  --media-container-bac-color:rgb(247,247,247);
+  --publish-container-bac-color:rgb(255,255,255);
+  --article-input-bac-color:rgb(247,247,247);
+  --article-buttom-icon-color:rgb(51,51,51);
+  --article-cancel-btn-bac-color:rgb(255,255,255);
+  --article-cancel-btn-bac-color-hover:rgb(247,247,247);
+  --article-cancel-btn-color:rgba(51,51,51,0.8);
+  --color-border:rgba(0,0,0,0.08);
+  --publish-container-border-color:rgba(0,0,0,0.08);
+  --article-title-color:#333;
+  --articlebottom-container-color:rgba(51,51,51,0.6);
+  --color-secondary-label:rgba(51,51,51,0.8);
+  --color-secondary-label-hover:#333;
+}
+body.dark {
+  --nomal-background-color:rgb(18,18,18);
+  --icon-color:rgb(208,208,208);
+  --icon-color-hover:rgb(255,255,255);
+  --input-color:rgb(255,255,255);
+  --input-background-color: rgb(20,20,20);
+  --multistage-toggle-background-color:rgb(33,33,33);
+  --toggle-item-background-color:rgb(18,18,18);
+  --header-background-color:rgb(10,10,10);
+  --aside-icon-color:rgb(255,255,255);
+  --side-bar-item-background-color:rgb(10,10,10);
+  --side-bar-item-background-color-hover:rgb(20,20,20);
+  --side-bar-bac-color:rgb(10,10,10);
+  --card-title-color:rgb(255,255,255);
+  --card-author-msg-color:rgb(206,206,206);
+  --card-author-msg-color-hover:rgb(255,255,255);
+  --container-bac-color:rgb(10,10,10);
+  --publish-bac-color:rgb(38,39,39);
+  --upload-container-bac-color:rgb(10,10,10);
+  --upload-img-icon-bac-color:rgb(20,20,20);
+  --upload-testarea-bac-color:rgb(20,20,20);
+  --upload-test-color:rgb(255,255,255);
+  --author-container-bac-color:rgb(18,18,18);
+  --article-user-name-color:rgb(255,255,255);
+  --media-container-bac-color:rgb(27,27,27);
+  --publish-container-bac-color:rgb(18,18,18);
+  --article-input-bac-color:rgb(27,27,27);
+  --article-buttom-icon-color:rgb(255,255,255);
+  --article-cancel-btn-bac-color:rgb(18,18,18);
+  --color-border:hsla(0,0%,100%,0.08);
+  --article-cancel-btn-color:hsla(0,0%,100%,0.8);
+  --article-cancel-btn-bac-color-hover:rgb(27,27,27);
+  --publish-container-border-color:hsla(0,0%,100%,0.08);
+  --article-title-color:#fff;
+  --articlebottom-container-color:hsla(0,0%,100%,0.6);
+  --color-secondary-label:hsla(0,0%,100%,0.8);
+  --color-secondary-label-hover:#fff;
 }
 </style>
