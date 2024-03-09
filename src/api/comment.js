@@ -8,3 +8,6 @@ export const getComments = (articleId) => {
         },
     })
 }
+export const publishComment = (data) => {
+    return request.post('/publishComment',data)
+}

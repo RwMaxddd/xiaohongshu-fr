@@ -43,11 +43,10 @@
 <script setup>
 import { Star} from '@element-plus/icons-vue'
 import { LazyImg, Waterfall } from "vue-waterfall-plugin-next";
-import 'vue-waterfall-plugin-next/dist/style.css'
-// import {ref} from "vue";
-import TheArticle from './TheArticle'
 import { useArticleStore } from '../store/article'
 import loadProps from '../const/loadProps'
+import 'vue-waterfall-plugin-next/dist/style.css'
+import TheArticle from './TheArticle'
 
 const breakpoints = {
   1600:{rowPerView:4},
@@ -58,10 +57,10 @@ const breakpoints = {
 
 
 const articleStore = useArticleStore()
+articleStore.loadArticle()
 function clickArticle(articleId) {
   articleStore.readArticle(articleId)
 }
-articleStore.loadArticle()
 
 
 </script>

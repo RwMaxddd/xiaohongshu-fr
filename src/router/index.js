@@ -6,6 +6,7 @@ const routes = [
     },
     {
         path: '/TheLogin',
+        name:'login',
         component: () => import('../pages/TheLogin'),
     },
     {
@@ -23,6 +24,11 @@ const routes = [
                 component: () => import('../components/ThePublish'),
                 meta: { requiresAuth: true },
             },
+            {
+                path: 'TheUser',
+                name:'user',
+                component: () => import('../components/TheUser'),
+            },
         ],
         redirect: { name: 'explore' }
     },
@@ -34,15 +40,14 @@ const router = createRouter({
 })
 
 import { useUserStore } from '../store/user'
-router.beforeEach(async (to) => {
+router.beforeEach( async (to) => {
     const userStore = useUserStore()
-    // console.log('rou')
-    // console.log(userStore.isLogin)
+    if (!userStore.isVerify){
+        await userStore.getUserId()
+    }
     if (to.meta.requiresAuth && !userStore.isLogin) {
         // 此路由需要授权，请检查是否已登录
         // 如果没有，则重定向到登录页面
-        const data = await userStore.getUserId()
-        console.log(data)
         return {
             path: '/TheLogin',
         }

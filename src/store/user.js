@@ -10,6 +10,7 @@ export const useUserStore = defineStore('user', {
             userId: '',
             userName: '',
             avatarSrc: '',
+            isVerify:false
         }
     },
     getters: {
@@ -21,12 +22,15 @@ export const useUserStore = defineStore('user', {
                 if (localStorage.getItem('token')) {
                     const resData = await verifyToken()
                     this.userId = resData.data
-                    return 25
+                    this.isVerify = true
+                }else {
+                    this.isVerify = true
                 }
             }catch (e) {
                 if (e.response.status === 401) {
                     localStorage.removeItem('token')
                 }
+                this.isVerify = true
                 console.log(e)
             }
         },

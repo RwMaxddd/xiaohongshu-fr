@@ -2,22 +2,30 @@
   <div class="comment">
     <div class="avatar">
       <a href="#">
-        <img :src="props.dataObj.photo" alt="error">
+        <img :src="photo" alt="error">
       </a>
     </div>
     <div class="right">
-      <span class="author">{{ props.dataObj.user_name }}</span>
-      <span class="content">{{ props.dataObj.content }}</span>
+      <span class="author">{{ user_name }}</span>
+      <span class="content">
+        <span class="replay-tip" v-show="replay_name">
+          回复
+          <span class="replay-name">
+            {{ replay_name }}
+          </span>:
+        </span>
+        {{ content }}
+      </span>
       <div class="info">
-        <span class="date">{{props.dataObj.comment_time}}</span>
+        <span class="date">{{comment_time}}</span>
         <div class="interactions">
           <div class="like">
             <Star class="icon"></Star>
-            <span class="count">{{ props.dataObj.like_count }}</span>
+            <span class="count">{{ like_count }}</span>
           </div>
-          <div class="replay">
+          <div class="replay" @click="clickComment(parent_id,comment_id,user_name,content)">
             <ChatRound class="icon"></ChatRound>
-            <span class="count">{{ props.dataObj.like_count }}</span>
+            <span class="count">{{ replay_count }}</span>
           </div>
         </div>
       </div>
@@ -27,9 +35,21 @@
 
 <script setup>
 import { Star, ChatRound} from '@element-plus/icons-vue'
+import { useCommentStore } from '../store/comment'
+import { useArticleStore } from '../store/article'
+import { toRefs } from "vue";
 
 // eslint-disable-next-line no-undef
 const props = defineProps(['dataObj'])
+const {user_name, photo, comment_time, content, like_count, replay_count, parent_id, comment_id, replay_name} = toRefs(props.dataObj)
+
+function clickComment(parent_id,comment_id,user_name,content){
+  const pId = parent_id === 0 ? comment_id : parent_id;
+  const commentStore = useCommentStore()
+  const articleStore = useArticleStore()
+  articleStore.activeInput()
+  commentStore.clickCommentIcon(pId,comment_id,user_name,content)
+}
 </script>
 
 <style scoped lang="less">
@@ -60,6 +80,12 @@ const props = defineProps(['dataObj'])
       margin-top: 4px;
       line-height: 140%;
       color: var(--article-title-color);
+      .replay-tip {
+        .replay-name {
+          margin-left: 4px;
+          color: var(--articlebottom-container-color);
+        }
+      }
     }
     .info {
       display: flex;

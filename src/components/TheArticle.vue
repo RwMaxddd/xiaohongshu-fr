@@ -34,13 +34,20 @@
               <div class="bottom-container">{{ articleStore.currentArticle.publish_time }}</div>
             </div>
             <div class="comments-el">
-              <div class="comments-container" v-for="(parentComment,index) in commentStore.commentList" :key="index">
-                <TheComment :dataObj="parentComment"></TheComment>
-                <TheComment style="margin-left: 52px;margin-top: 10px" v-for="(leafComment,index) in parentComment.children" :key="index" :dataObj="leafComment"></TheComment>
+              <LoadingComment></LoadingComment>
+              <div v-show="!commentStore.loadingCommentList">
+                <div class="comments-container" v-for="(parentComment,index) in commentStore.commentList" :key="index">
+                  <TheComment :dataObj="parentComment"></TheComment>
+                  <TheComment style="margin-left: 52px;margin-top: 10px" v-for="(leafComment,index) in parentComment.children" :key="index" :dataObj="leafComment"></TheComment>
+                </div>
               </div>
             </div>
           </div>
           <div class="publish-container" :class="{active:articleStore.isInput}">
+            <div class="reply-content" v-show="commentStore.userName">
+              <span class="replay">{{ commentStore.userName }}</span>
+              <span class="content">{{ commentStore.replayContent }}</span>
+            </div>
             <div class="input-box">
               <el-input v-model="input" placeholder="Please input" @click="clickInput" :class="{active:articleStore.isInput}"/>
               <div class="buttons">
@@ -56,8 +63,9 @@
             </div>
             <div class="bottom-box">
               <div class="right-btn-area">
-                <div class="send-btn">
-                  <span>发送</span>
+                <div class="send-btn" @click="publishComment">
+                  <div class="loader" v-show="commentStore.loadingPublishComment"></div>
+                  <span v-show="!commentStore.loadingPublishComment">发送</span>
                 </div>
                 <div class="cancel-btn" @click="cancleBtn">
                   <span>取消</span>
@@ -74,12 +82,16 @@
 <script setup>
 import { ref } from 'vue'
 import { useArticleStore } from '../store/article'
+import { useUserStore } from '../store/user'
 import { useCommentStore} from '../store/comment'
 import { Star, ChatRound} from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import TheComment from './TheComment'
+import LoadingComment from './LoadingComment'
 
 const articleStore = useArticleStore()
 const commentStore = useCommentStore()
+const input = ref('')
 function closeArticle() {
   articleStore.closeArticle()
 }
@@ -88,20 +100,49 @@ function clickInput() {
 }
 function cancleBtn() {
   articleStore.cancleInput()
+  input.value = ''
+}
+
+const userStore = useUserStore()
+function publishComment() {
+  if (userStore.userId === ''){
+    ElMessage.error('未登录')
+  }
+  else if (input.value === '') {
+    ElMessage.error('输入内容不能为空')
+  }else {
+    commentStore.sendComment(input.value)
+  }
 }
 
 
-const input = ref('')
 </script>
 
 <style scoped lang="less">
+.loader {
+  width: 44px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side,#fff 90%,#0000);
+  background:
+      var(--_g) 0%   50%,
+      var(--_g) 50%  50%,
+      var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+  20%{background-position:0%   0%, 50%  50%,100%  50%}
+  40%{background-position:0% 100%, 50%   0%,100%  50%}
+  60%{background-position:0%  50%, 50% 100%,100%   0%}
+  80%{background-position:0%  50%, 50%  50%,100% 100%}
+}
 
 .modal-mask {
   display: flex;
   align-items: center;
   justify-content: center;
   position: fixed;
-  z-index: 9998;
+  //z-index: 9998;
   top: 0;
   left: 0;
   width: 100%;
@@ -180,7 +221,7 @@ const input = ref('')
         }
       }
       .note-scroller {
-        flex-grow: 1;
+        height: calc(100% - 88px - 64px);
         background-color: var(--nomal-background-color);
         overflow-y: auto;
         .note-content {
@@ -222,7 +263,6 @@ const input = ref('')
       .publish-container {
         position: absolute;
         width: 100%;
-        //height: 120px;
         padding: 16px 16px 0 16px;
         bottom: 0;
         background-color: var(--publish-container-bac-color);
@@ -230,6 +270,24 @@ const input = ref('')
         transition: all .3s ease;
         border-top: 1px solid var(--publish-container-border-color);
         overflow: hidden;
+        .reply-content {
+          display: flex;
+          flex-direction: column;
+          font-size: 14px;
+          margin-bottom: 12px;
+          padding: 0 16px;
+          line-height: 16px;
+          .replay {
+            color: var(--articlebottom-container-color);
+          }
+          .content {
+            color: var(--article-title-color);
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
         .input-box {
           height: 40px;
           display: flex;

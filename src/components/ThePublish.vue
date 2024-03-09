@@ -75,8 +75,6 @@ import { getCurrentTimeString } from '../utils/time'
 import { publishArticle } from '../api/upload'
 import { useUserStore } from '../store/user'
 
-
-
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
@@ -207,5 +205,9 @@ body .publish .el-upload-list--picture-card .el-upload-list__item,
 .publish .el-input__inner{
   color: var(--input-color);
   background-color: var(--upload-testarea-bac-color);
+}
+.publish .el-input__wrapper {
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 </style>

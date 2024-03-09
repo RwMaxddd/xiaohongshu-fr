@@ -24,17 +24,21 @@ export const useArticleStore = defineStore('article', {
             commentStore.loadComments(articleId)
         },
         closeArticle() {
+            const commentStore = useCommentStore()
             this.$patch({
                 currentArticleId: -1,
                 isInput:false,
                 currentArticle:{}
             })
+            commentStore.closeComment()
         },
         activeInput() {
             this.isInput = true
         },
         cancleInput() {
+            const commentStore = useCommentStore()
             this.isInput = false
+            commentStore.cancelComment()
         },
         async loadArticle() {
             const data = await getArticles()

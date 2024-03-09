@@ -13,12 +13,9 @@ import SideBar from './SideBar'
 
 <style scoped lang="less">
 .main-container {
-  display: flex;
-  flex-direction: row;
-  height: calc(100vh - 72px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 6fr);
+  grid-template-rows: calc(100vh - 72px);
   overflow: hidden;
-  .container {
-    flex-grow: 8;
-  }
 }
 </style>

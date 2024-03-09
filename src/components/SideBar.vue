@@ -1,31 +1,31 @@
 <template>
   <div class="side-bar">
     <ul class="channel-list">
-      <li class="list-item" :class="{'item-active':isDiscover}" @click="clickItem($event,'isDiscover')">
+      <li class="list-item" :class="{'item-active':isDiscover}" @click.prevent="clickItem('isDiscover')">
         <a href="#">
           <House class="aside-icon"></House>
           <span>发现</span>
         </a>
       </li>
-      <li class="list-item" :class="{'item-active':isPublish}" @click="clickItem($event,'isPublish')">
+      <li class="list-item" :class="{'item-active':isPublish}" @click.prevent="clickItem('isPublish')">
         <a href="#">
           <EditPen class="aside-icon"></EditPen>
           <span>发布</span>
         </a>
       </li>
-      <li class="list-item" :class="{'item-active':isInform}" @click="clickItem($event,'isInform')">
+      <li class="list-item" :class="{'item-active':isInform}" @click.prevent="clickItem('isInform')">
         <a href="#">
           <Bell class="aside-icon"></Bell>
           <span>通知</span>
         </a>
       </li>
-      <li class="list-item" :class="{'item-active':isPersonal}" @click="clickItem($event,'isPersonal')" v-show="userStore.isLogin">
+      <li class="list-item" :class="{'item-active':isPersonal}" @click.prevent="clickItem('isPersonal')" v-show="userStore.isLogin">
         <a href="#">
           <img :src="userStore.avatarSrc" alt="">
           <span>我</span>
         </a>
       </li>
-      <li class="list-item login" v-show="!userStore.isLogin">
+      <li class="list-item login" v-show="!userStore.isLogin" @click.prevent="toLogin">
         <a href="#">
           <span>未登录</span>
         </a>
@@ -60,8 +60,7 @@ const itemObj = {
 }
 const {isDiscover, isPublish, isInform, isPersonal} = itemObj
 
-function clickItem(e,item){
-  e.preventDefault()
+function clickItem(item){
   if(item !== nowActiveItem.value){
     itemObj[nowActiveItem.value].value = false
     itemObj[item].value = true
@@ -70,9 +69,13 @@ function clickItem(e,item){
     const tmpObj = {
       isDiscover:'explore',
       isPublish:'publish',
+      isPersonal:'user',
     }
     router.push({ name: tmpObj[item] })
   }
+}
+function toLogin() {
+  router.push({ name: 'login' })
 }
 </script>
 
@@ -84,7 +87,6 @@ function clickItem(e,item){
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  flex-grow: 1;
   padding: 16px 0 0 16px;
   height: 100%;
   background-color: var(--side-bar-bac-color);
