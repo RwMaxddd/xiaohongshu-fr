@@ -31,10 +31,10 @@
         </a>
       </li>
     </ul>
-    <div class="information-container">
+    <div class="information-container" @click.prevent="logOutBtn" v-show="userStore.isLogin">
       <a href="#">
         <Setting class="aside-icon"></Setting>
-        <span>更多</span>
+        <span>退出登录</span>
       </a>
     </div>
   </div>
@@ -53,7 +53,7 @@ const nowActiveItem = ref('isDiscover');
 const router = useRouter()
 
 const itemObj = {
-  isDiscover:ref(true),
+  isDiscover:ref(false),
   isPublish:ref(false),
   isInform:ref(false),
   isPersonal:ref(false),
@@ -71,11 +71,19 @@ function clickItem(item){
       isPublish:'publish',
       isPersonal:'user',
     }
-    router.push({ name: tmpObj[item] })
+    if (item !== "isPersonal") {
+      router.push({ name: tmpObj[item] })
+    }else {
+      router.push({ name: tmpObj[item],params: { id: userStore.userId } })
+    }
   }
 }
 function toLogin() {
   router.push({ name: 'login' })
+}
+function logOutBtn() {
+  userStore.logOut()
+  router.push({ name: 'explore' })
 }
 </script>
 

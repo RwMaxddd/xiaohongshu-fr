@@ -73,6 +73,7 @@ import { ElMessage } from 'element-plus'
 import { Delete, Plus, ZoomIn } from '@element-plus/icons-vue'
 import { getCurrentTimeString } from '../utils/time'
 import { publishArticle } from '../api/upload'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
 
 const dialogImageUrl = ref('')
@@ -82,6 +83,7 @@ const fileList = ref([])
 
 const title = ref('')
 const textarea = ref('')
+const router = useRouter()
 
 const handleRemove = (file) => {
   console.log(fileList.value)
@@ -124,7 +126,7 @@ async function handleSubmit(){
       message: value.msg,
       type: 'success',
     })
-    location.reload()
+    await router.push({ name: 'user',params: { id: userId } })
   }catch (e) {
     if (e.response) {
       // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围

@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
-import { getArticles } from '../api/articles'
+import { getArticles, getUserArticles} from '../api/articles'
 import { useCommentStore } from './comment'
 
 export const useArticleStore = defineStore('article', {
     state: () => {
         return {
             articleList:[],
+            userArticleList:[],
             currentArticleId:-1,
             currentArticle:{},
             isInput:false
@@ -18,6 +19,14 @@ export const useArticleStore = defineStore('article', {
         readArticle(articleId) {
             this.$patch((state) => {
                 state.currentArticle = state.articleList.find((item) => item.article_id === articleId)
+                state.currentArticleId = articleId
+            })
+            const commentStore = useCommentStore()
+            commentStore.loadComments(articleId)
+        },
+        readUserArticle(articleId) {
+            this.$patch((state) => {
+                state.currentArticle = state.userArticleList.find((item) => item.article_id === articleId)
                 state.currentArticleId = articleId
             })
             const commentStore = useCommentStore()
@@ -43,6 +52,10 @@ export const useArticleStore = defineStore('article', {
         async loadArticle() {
             const data = await getArticles()
             this.articleList = data.data
+        },
+        async loadUserArticle(userId) {
+            const data = await getUserArticles(userId)
+            this.userArticleList = data.data
         }
     },
 })

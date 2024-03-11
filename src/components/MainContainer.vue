@@ -4,11 +4,15 @@
     <div class="container">
       <router-view></router-view>
     </div>
+    <Teleport to="body">
+      <TheArticle></TheArticle>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import SideBar from './SideBar'
+import TheArticle from './TheArticle'
 </script>
 
 <style scoped lang="less">

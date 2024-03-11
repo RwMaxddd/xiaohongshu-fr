@@ -1,7 +1,7 @@
 import loading from '../assets/loading.png'
 import error from '../assets/error.png'
 
-export default {
+export const loadProps = {
     loading,
     error,
     ratioCalculator: (width, height) => {
@@ -19,4 +19,11 @@ export default {
             return curRatio;
         }
     }
+}
+
+export const breakpoints = {
+    1600:{rowPerView:4},
+    900:{rowPerView:3},
+    700:{rowPerView:2},
+    500:{rowPerView:1}
 }

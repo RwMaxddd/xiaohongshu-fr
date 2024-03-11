@@ -44,5 +44,14 @@ export const useUserStore = defineStore('user', {
                 console.log(e)
             }
         },
+        logOut() {
+            this.$patch({
+                userId: '',
+                userName: '',
+                avatarSrc: '',
+                isVerify:true
+            })
+            localStorage.removeItem('token')
+        }
     },
 })

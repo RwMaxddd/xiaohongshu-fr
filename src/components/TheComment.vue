@@ -44,6 +44,7 @@ const props = defineProps(['dataObj'])
 const {user_name, photo, comment_time, content, like_count, replay_count, parent_id, comment_id, replay_name} = toRefs(props.dataObj)
 
 function clickComment(parent_id,comment_id,user_name,content){
+  console.log(props.dataObj)
   const pId = parent_id === 0 ? comment_id : parent_id;
   const commentStore = useCommentStore()
   const articleStore = useArticleStore()
