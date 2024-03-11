@@ -53,11 +53,11 @@
               <div class="buttons">
                 <div class="item">
                   <Star class="icon"></Star>
-                  <span class="count">1780</span>
+                  <span class="count">6</span>
                 </div>
                 <div class="item">
                   <ChatRound class="icon"></ChatRound>
-                  <span class="count">1780</span>
+                  <span class="count">1</span>
                 </div>
               </div>
             </div>
