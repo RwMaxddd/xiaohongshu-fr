@@ -1,49 +1,123 @@
 <template>
   <div class="user-box">
     <div class="header-box">
-      <div class="information">
+      <div style="width: 100%;height: 200px;display: flex;justify-content: center;padding-top: 50px;" v-if="userInfoLoader">
+        <div class="loader"></div>
+      </div>
+      <div class="information" v-else>
         <div class="avatar">
-          <img src="../assets/1.jpg" alt="error">
+          <img :src="userInfo.photo" alt="error">
         </div>
         <div class="info-part">
-          <div class="user-name">小红书653A50B2</div>
+          <div class="user-name">{{ userInfo.user_name }}</div>
           <div class="user-id">
             <span>小红书号:</span>
-            <span>34012</span>
+            <span>{{ currentUserId }}</span>
           </div>
-          <div class="user-intro">还没有简介</div>
+          <div class="user-intro">{{ userInfo.intro }}</div>
           <div class="data-info">
             <div class="follow">
-              <span class="count">12</span>
+              <span class="count">{{ userInfo.like_count }}</span>
               <span class="text">关注</span>
             </div>
             <div class="fans">
-              <span class="count">45</span>
+              <span class="count">{{ userInfo.fans_count }}</span>
               <span class="text">粉丝</span>
             </div>
           </div>
         </div>
+        <div class="btn">
+          <ModifyBtn v-if="userStore.userId === currentUserId" @click="userStore.isShowModifyForm = true"></ModifyBtn>
+          <FollowBtn v-else></FollowBtn>
+        </div>
       </div>
     </div>
     <div class="user-articles">
-      <WaterfallArticles :articleList="articleStore.userArticleList"></WaterfallArticles>
+      <WaterfallArticles :articleList="articleStore.articleList"></WaterfallArticles>
       <TheEnd></TheEnd>
     </div>
+    <Teleport to="body">
+      <ModifyForm :user_name="userInfo.user_name" :intro="userInfo.intro" :photo="userInfo.photo" :user_id="route.params.id"></ModifyForm>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '../store/article'
+import { useUserStore } from '../store/user'
 import WaterfallArticles  from './WaterfallArticles'
 import TheEnd  from './TheEnd'
+import FollowBtn from './FollowBtn'
+import ModifyBtn from './ModifyBtn'
+import ModifyForm from './ModifyForm'
+import {getUserInfo} from '../api/user'
+import {ref, watchEffect} from "vue";
 
+const userStore = useUserStore()
 const route = useRoute()
+const userInfo = ref({
+  user_name:'',
+  intro:'',
+  photo:'',
+  fans_count:0,
+  like_count:0,
+})
+const currentUserId = ref(route.params.id)
+const userInfoLoader = ref(true)
+async function getCurrentUserInfo() {
+  userInfoLoader.value = true
+  const msgData = await getUserInfo(route.params.id)
+  userInfo.value.user_name = msgData.data.user_name
+  userInfo.value.intro = msgData.data.intro
+  userInfo.value.photo = msgData.data.photo
+  userInfo.value.fans_count = msgData.data.fans_count
+  userInfo.value.like_count = msgData.data.like_count
+  userInfoLoader.value = false
+}
+
 const articleStore = useArticleStore()
-articleStore.loadUserArticle(route.params.id)
+
+watchEffect(() => {
+  currentUserId.value = route.params.id
+  articleStore.loadUserArticle(route.params.id)
+  getCurrentUserInfo()
+})
 </script>
 
 <style scoped lang="less">
+.loader {
+  height: 15px;
+  aspect-ratio: 4;
+  --_g: no-repeat radial-gradient(farthest-side,#000 90%,#0000);
+  background:
+      var(--_g) left,
+      var(--_g) right;
+  background-size: 25% 100%;
+  display: grid;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  height: inherit;
+  aspect-ratio: 1;
+  grid-area: 1/1;
+  margin: auto;
+  border-radius: 50%;
+  transform-origin: -100% 50%;
+  background: #000;
+  animation: l49 1s infinite linear;
+}
+.loader:after {
+  transform-origin: 200% 50%;
+  --s:-1;
+  animation-delay: -.5s;
+}
+
+@keyframes l49 {
+  58%,
+  100% {transform: rotate(calc(var(--s,1)*1turn))}
+}
 .user-box {
   padding: 16px 32px 0 32px;
   height: 100%;
@@ -107,10 +181,16 @@ articleStore.loadUserArticle(route.params.id)
           }
         }
       }
+      .btn {
+        margin-left: 40px;
+        cursor:pointer;
+      }
     }
   }
   .user-articles {
     padding: 24px 0 0 0;
   }
 }
+
 </style>
+

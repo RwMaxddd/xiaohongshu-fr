@@ -1,19 +1,17 @@
 import { defineStore } from 'pinia'
-import { getArticles, getUserArticles} from '../api/articles'
+import { getArticles, getUserArticles, getExamineArticles, getOnlyArticle} from '../api/articles'
 import { useCommentStore } from './comment'
 
 export const useArticleStore = defineStore('article', {
     state: () => {
         return {
             articleList:[],
-            userArticleList:[],
             currentArticleId:-1,
             currentArticle:{},
-            isInput:false
+            isInput:false,
+            isRead:false,
+            loading:true
         }
-    },
-    getters: {
-        isRead: (state) => state.currentArticleId !== -1,
     },
     actions: {
         readArticle(articleId) {
@@ -21,14 +19,7 @@ export const useArticleStore = defineStore('article', {
                 state.currentArticle = state.articleList.find((item) => item.article_id === articleId)
                 state.currentArticleId = articleId
             })
-            const commentStore = useCommentStore()
-            commentStore.loadComments(articleId)
-        },
-        readUserArticle(articleId) {
-            this.$patch((state) => {
-                state.currentArticle = state.userArticleList.find((item) => item.article_id === articleId)
-                state.currentArticleId = articleId
-            })
+            this.loading = false
             const commentStore = useCommentStore()
             commentStore.loadComments(articleId)
         },
@@ -37,6 +28,7 @@ export const useArticleStore = defineStore('article', {
             this.$patch({
                 currentArticleId: -1,
                 isInput:false,
+                isRead:false,
                 currentArticle:{}
             })
             commentStore.closeComment()
@@ -49,13 +41,27 @@ export const useArticleStore = defineStore('article', {
             this.isInput = false
             commentStore.cancelComment()
         },
-        async loadArticle() {
-            const data = await getArticles()
+        async loadOnlyArticle(articleId) {
+            this.loading = true
+            this.articleList = []
+            const data = await getOnlyArticle(articleId)
+            this.articleList = data.data
+            this.readArticle(articleId)
+        },
+        async loadArticle(type) {
+            this.articleList = []
+            const data = await getArticles(type)
+            this.articleList = data.data
+        },
+        async loadExamineArticles() {
+            this.articleList = []
+            const data = await getExamineArticles()
             this.articleList = data.data
         },
         async loadUserArticle(userId) {
+            this.articleList = []
             const data = await getUserArticles(userId)
-            this.userArticleList = data.data
+            this.articleList = data.data
         }
     },
 })

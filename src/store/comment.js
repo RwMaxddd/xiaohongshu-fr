@@ -25,7 +25,10 @@ export const useCommentStore = defineStore('comment', {
                 this.loadingCommentList = true
                 const data = await getComments(articleId)
                 this.loadingCommentList = false
-                this.commentList = data.data
+                if (this.commentList.length !== 0){
+                    this.commentList.pop()
+                }
+                this.commentList.push(...data.data)
             }catch (e) {
                 ElMessage.error('评论区数据获取失败')
                 this.loadingCommentList = false
@@ -75,6 +78,7 @@ export const useCommentStore = defineStore('comment', {
                 await this.loadComments(articleStore.currentArticleId)
             }catch (e){
                 ElMessage.error('评论发布失败')
+                this.loadingPublishComment = false
                 console.log(e.message)
             }
         }

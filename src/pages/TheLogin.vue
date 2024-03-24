@@ -91,6 +91,7 @@ async function login(e){
       const value = await response.json()
       localStorage.setItem('token', value.data);
       userStore.userId = value.user_id
+      userStore.isAdmin = value.admin
       ElMessage({
         message: value.msg,
         type: 'success',

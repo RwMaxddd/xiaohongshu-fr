@@ -42,6 +42,20 @@
           </el-dialog>
         </div>
         <div class="upload-textarea">
+          <div style="margin-bottom: 12px">
+            <el-select
+                v-model="value"
+                placeholder="Select"
+                style="width: 100px"
+            >
+              <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
+            </el-select>
+          </div>
           <el-input
               v-model="title"
               placeholder="填写标题，可能会有更多赞哦～"
@@ -84,9 +98,20 @@ const fileList = ref([])
 const title = ref('')
 const textarea = ref('')
 const router = useRouter()
+const value = ref('discuss')
+
+const options = [
+  {
+    value: 'discuss',
+    label: '讨论',
+  },
+  {
+    value: 'popularization',
+    label: '科普',
+  }
+]
 
 const handleRemove = (file) => {
-  console.log(fileList.value)
   const deleteIndex = fileList.value.findIndex(item => item.name === file.name)
   fileList.value.splice(deleteIndex,1)
 }
@@ -98,6 +123,7 @@ const handleChange = (uploadFile) => {
   if (uploadFile.raw.type !== 'image/jpeg'){
     ElMessage.error('必须为JPG格式图片!')
     fileList.value.splice(-1,1)
+    console.log(value.value)
     return;
   }
   if (uploadFile.size / 1024 / 1024 > 2){
@@ -116,6 +142,7 @@ async function handleSubmit(){
   formData.append('userId',userId)
   formData.append('title',title.value)
   formData.append('content',textarea.value)
+  formData.append('type',value.value)
   formData.append('time',getCurrentTimeString())
   for (const file of fileList.value) {
     formData.append('pictures',file.raw)

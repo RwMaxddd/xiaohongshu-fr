@@ -19,13 +19,14 @@
       <div class="info">
         <span class="date">{{comment_time}}</span>
         <div class="interactions">
-          <div class="like">
+          <div class="like" @click="tt">
             <Star class="icon"></Star>
             <span class="count">{{ like_count }}</span>
           </div>
           <div class="replay" @click="clickComment(parent_id,comment_id,user_name,content)">
             <ChatRound class="icon"></ChatRound>
-            <span class="count">{{ replay_count }}</span>
+            <span class="count" v-if="parent_id === 0">{{ props.dataObj.replay_count }}</span>
+            <span class="count" v-else>回复</span>
           </div>
         </div>
       </div>
@@ -41,15 +42,18 @@ import { toRefs } from "vue";
 
 // eslint-disable-next-line no-undef
 const props = defineProps(['dataObj'])
-const {user_name, photo, comment_time, content, like_count, replay_count, parent_id, comment_id, replay_name} = toRefs(props.dataObj)
+const {user_name, photo, comment_time, content, like_count, parent_id, comment_id, replay_name} = toRefs(props.dataObj)
 
 function clickComment(parent_id,comment_id,user_name,content){
-  console.log(props.dataObj)
   const pId = parent_id === 0 ? comment_id : parent_id;
   const commentStore = useCommentStore()
   const articleStore = useArticleStore()
   articleStore.activeInput()
   commentStore.clickCommentIcon(pId,comment_id,user_name,content)
+}
+function tt() {
+  const commentStore = useCommentStore()
+  commentStore.commentList[0].replay_count += 1;
 }
 </script>
 

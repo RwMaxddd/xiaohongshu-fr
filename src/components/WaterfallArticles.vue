@@ -12,9 +12,12 @@
         :loadProps="loadProps"
     >
       <template #item="{ item }">
-        <div class="card-item" @click.prevent="clickArticle(item.article_id)">
+        <div class="card-item" @click.prevent="clickArticle(item.article_id)" v-if="item.examine || userStore.userId === $route.params.id">
           <a href="#" class="preview">
             <LazyImg :url='item.imagesSrc[0]' class="lazy-img"></LazyImg>
+            <div class="mask" v-if="!item.examine">
+              <span>审核中</span>
+            </div>
           </a>
           <div class="footer">
             <a href="#" class="title-wrapper">
@@ -41,6 +44,7 @@
 import { Star} from '@element-plus/icons-vue'
 import { LazyImg, Waterfall } from "vue-waterfall-plugin-next";
 import { useArticleStore } from '../store/article'
+import { useUserStore } from '../store/user'
 import { loadProps, breakpoints} from '../const/waterfallProps'
 import 'vue-waterfall-plugin-next/dist/style.css'
 import {toRef} from "vue";
@@ -50,7 +54,9 @@ const props = defineProps(['articleList'])
 const articleList = toRef(props,'articleList')
 
 const articleStore = useArticleStore()
+const userStore = useUserStore()
 function clickArticle(articleId) {
+  articleStore.isRead = true
   articleStore.readArticle(articleId)
 }
 </script>
@@ -59,9 +65,28 @@ function clickArticle(articleId) {
 .card-item {
   .preview {
     width: 100%;
+    position: relative;
     .lazy-img {
       width: 100%;
       border-radius: 18px;
+    }
+    .mask {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: 0;
+      left: 0;
+      background-color: rgba(0,0,0,.5);
+      border-radius: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      span {
+        font-weight: 600;
+        font-size: 24px;
+        line-height: 120%;
+        color: #FFFFFF;
+      }
     }
   }
   .footer {

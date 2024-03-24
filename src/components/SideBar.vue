@@ -1,31 +1,37 @@
 <template>
   <div class="side-bar">
     <ul class="channel-list">
-      <li class="list-item" :class="{'item-active':isDiscover}" @click.prevent="clickItem('isDiscover')">
+      <li class="list-item" :class="{'item-active':explore}" @click.prevent="clickItem('explore')">
         <a href="#">
           <House class="aside-icon"></House>
           <span>发现</span>
         </a>
       </li>
-      <li class="list-item" :class="{'item-active':isPublish}" @click.prevent="clickItem('isPublish')">
+      <li class="list-item" :class="{'item-active':publish}" @click.prevent="clickItem('publish')">
         <a href="#">
           <EditPen class="aside-icon"></EditPen>
           <span>发布</span>
         </a>
       </li>
-      <li class="list-item" :class="{'item-active':isInform}" @click.prevent="clickItem('isInform')">
+      <li class="list-item" :class="{'item-active':inform}" @click.prevent="clickItem('inform')">
         <a href="#">
           <Bell class="aside-icon"></Bell>
           <span>通知</span>
         </a>
       </li>
-      <li class="list-item" :class="{'item-active':isPersonal}" @click.prevent="clickItem('isPersonal')" v-show="userStore.isLogin">
+      <li class="list-item" :class="{'item-active':admin}" @click.prevent="clickItem('admin')" v-if="userStore.isAdmin">
+        <a href="#">
+          <User class="aside-icon"></User>
+          <span>审核</span>
+        </a>
+      </li>
+      <li class="list-item" :class="{'item-active':user && userStore.userId === $route.params.id}" @click.prevent="clickItem('user')" v-if="userStore.isLogin">
         <a href="#">
           <img :src="userStore.avatarSrc" alt="">
           <span>我</span>
         </a>
       </li>
-      <li class="list-item login" v-show="!userStore.isLogin" @click.prevent="toLogin">
+      <li class="list-item login" v-else @click.prevent="toLogin">
         <a href="#">
           <span>未登录</span>
         </a>
@@ -41,41 +47,40 @@
 </template>
 
 <script setup>
-import { House, EditPen, Bell, Setting} from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
-import { ref } from "vue";
+import { House, EditPen, Bell, Setting, User} from '@element-plus/icons-vue'
+import { useRouter, useRoute } from 'vue-router'
+import {ref, watch} from "vue";
 import { useUserStore } from '../store/user'
 
 
 const userStore = useUserStore()
 userStore.getAvatarSrc()
-const nowActiveItem = ref('isDiscover');
 const router = useRouter()
+const route = useRoute()
 
 const itemObj = {
-  isDiscover:ref(false),
-  isPublish:ref(false),
-  isInform:ref(false),
-  isPersonal:ref(false),
+  explore:ref(false),
+  publish:ref(false),
+  inform:ref(false),
+  user:ref(false),
+  admin:ref(false)
 }
-const {isDiscover, isPublish, isInform, isPersonal} = itemObj
+watch(() => route.meta.itemName, (newValue, oldValue) => {
+  if (newValue === 'article' || oldValue === 'article') {
+    return
+  }
+  if (oldValue) {
+    itemObj[oldValue].value = false
+  }
+  itemObj[newValue].value = true
+},{ immediate: true })
+const {explore, publish, inform, user, admin} = itemObj
 
 function clickItem(item){
-  if(item !== nowActiveItem.value){
-    itemObj[nowActiveItem.value].value = false
-    itemObj[item].value = true
-    nowActiveItem.value = item
-
-    const tmpObj = {
-      isDiscover:'explore',
-      isPublish:'publish',
-      isPersonal:'user',
-    }
-    if (item !== "isPersonal") {
-      router.push({ name: tmpObj[item] })
-    }else {
-      router.push({ name: tmpObj[item],params: { id: userStore.userId } })
-    }
+  if (item !== "user") {
+    router.push({ name: item })
+  }else {
+    router.push({ name: item,params: { id: userStore.userId } })
   }
 }
 function toLogin() {

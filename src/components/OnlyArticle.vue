@@ -1,88 +1,90 @@
 <template>
-  <Transition name="modal">
-    <div class="modal-mask" @click="closeArticle" v-if="articleStore.isRead">
-      <div class="article" @click.stop>
-        <div class="media-container">
-          <el-carousel trigger="click" :autoplay="false">
-            <el-carousel-item v-for="(item,index) in articleStore.currentArticle.imagesSrc" :key="index" class="carousel-item" :motion-blur="true">
-              <img :src="item" alt="error">
-            </el-carousel-item>
-          </el-carousel>
+  <div class="only">
+    <div v-if="articleStore.loading" style="width: 100%;height: 200px;display: flex;justify-content: center;padding-top: 50px;transform: translateY(200px)">
+      <div class="loader"></div>
+    </div>
+    <div class="article" v-else>
+      <div class="media-container">
+        <el-carousel trigger="click" :autoplay="false">
+          <el-carousel-item v-for="(item,index) in articleStore.currentArticle.imagesSrc" :key="index" class="carousel-item" :motion-blur="true">
+            <img :src="item" alt="error">
+          </el-carousel-item>
+        </el-carousel>
+      </div>
+      <div class="text-container">
+        <div class="author-container">
+          <div class="info" @click.prevent="toUser(articleStore.currentArticle.author_id)">
+            <a href="#" class="avatar">
+              <img :src="articleStore.currentArticle.photo" alt="error">
+            </a>
+            <a href="#" class="name">
+              <span>{{ articleStore.currentArticle.user_name }}</span>
+            </a>
+          </div>
+          <FollowBtn></FollowBtn>
         </div>
-        <div class="text-container">
-          <div class="author-container">
-            <div class="info" @click.prevent="toUser(articleStore.currentArticle.author_id)">
-              <a href="#" class="avatar">
-                <img :src="articleStore.currentArticle.photo" alt="error">
-              </a>
-              <a href="#" class="name">
-                <span>{{ articleStore.currentArticle.user_name }}</span>
-              </a>
+        <div class="note-scroller">
+          <div class="note-content">
+            <div class="title">
+              <span>{{ articleStore.currentArticle.title }}</span>
             </div>
-            <FollowBtn></FollowBtn>
+            <div class="desc">
+              <span>{{ articleStore.currentArticle.content }}</span>
+            </div>
+            <div class="bottom-container">{{ articleStore.currentArticle.publish_time }}</div>
           </div>
-          <div class="note-scroller">
-            <div class="note-content">
-              <div class="title">
-                <span>{{ articleStore.currentArticle.title }}</span>
-              </div>
-              <div class="desc">
-                <span>{{ articleStore.currentArticle.content }}</span>
-              </div>
-              <div class="bottom-container">{{ articleStore.currentArticle.publish_time }}</div>
-            </div>
-            <div class="comments-el">
-              <LoadingComment></LoadingComment>
-              <div v-show="!commentStore.loadingCommentList">
-                <div class="comments-container" v-for="(parentComment,index) in commentStore.commentList" :key="index">
-                  <TheComment :dataObj="parentComment"></TheComment>
-                  <TheComment style="margin-left: 52px;margin-top: 10px" v-for="(leafComment,index) in parentComment.children" :key="index" :dataObj="leafComment"></TheComment>
-                </div>
+          <div class="comments-el">
+            <LoadingComment></LoadingComment>
+            <div v-show="!commentStore.loadingCommentList">
+              <div class="comments-container" v-for="(parentComment,index) in commentStore.commentList" :key="index">
+                <TheComment :dataObj="parentComment"></TheComment>
+                <TheComment style="margin-left: 52px;margin-top: 10px" v-for="(leafComment,index) in parentComment.children" :key="index" :dataObj="leafComment"></TheComment>
               </div>
             </div>
           </div>
-          <div class="publish-container" :class="{active:articleStore.isInput}">
-            <div class="reply-content" v-show="commentStore.userName">
-              <span class="replay">{{ commentStore.userName }}</span>
-              <span class="content">{{ commentStore.replayContent }}</span>
-            </div>
-            <div class="input-box">
-              <el-input v-model="input" placeholder="Please input" @click="clickInput" :class="{active:articleStore.isInput}"/>
-              <div class="buttons">
-                <div class="item">
-                  <Star class="icon"></Star>
-                  <span class="count">{{ articleStore.currentArticle.like_count }}</span>
-                </div>
-                <div class="item">
-                  <ChatRound class="icon"></ChatRound>
-                  <span class="count">{{ articleStore.currentArticle.comment_count }}</span>
-                </div>
-                <div class="item">
-                  <Link class="icon" v-if="!isLink" @click="copyArticleLink"></Link>
-                  <Check class="icon" v-if="isLink"></Check>
-                </div>
+        </div>
+        <div class="publish-container" :class="{active:articleStore.isInput}">
+          <div class="reply-content" v-show="commentStore.userName">
+            <span class="replay">{{ commentStore.userName }}</span>
+            <span class="content">{{ commentStore.replayContent }}</span>
+          </div>
+          <div class="input-box">
+            <el-input v-model="input" placeholder="Please input" @click="clickInput" :class="{active:articleStore.isInput}"/>
+            <div class="buttons">
+              <div class="item">
+                <Star class="icon"></Star>
+                <span class="count">{{ articleStore.currentArticle.like_count }}</span>
+              </div>
+              <div class="item">
+                <ChatRound class="icon"></ChatRound>
+                <span class="count">{{ articleStore.currentArticle.comment_count }}</span>
+              </div>
+              <div class="item">
+                <Link class="icon" v-if="!isLink" @click="copyArticleLink"></Link>
+                <Check class="icon" v-if="isLink"></Check>
               </div>
             </div>
-            <div class="bottom-box">
-              <div class="right-btn-area">
-                <div class="send-btn" @click="publishComment">
-                  <div class="loader" v-show="commentStore.loadingPublishComment"></div>
-                  <span v-show="!commentStore.loadingPublishComment">发送</span>
-                </div>
-                <div class="cancel-btn" @click="cancleBtn">
-                  <span>取消</span>
-                </div>
+          </div>
+          <div class="bottom-box">
+            <div class="right-btn-area">
+              <div class="send-btn" @click="publishComment">
+                <div class="loader" v-show="commentStore.loadingPublishComment"></div>
+                <span v-show="!commentStore.loadingPublishComment">发送</span>
+              </div>
+              <div class="cancel-btn" @click="cancleBtn">
+                <span>取消</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </Transition>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useArticleStore } from '../store/article'
 import { useUserStore } from '../store/user'
 import { useCommentStore} from '../store/comment'
@@ -112,10 +114,10 @@ function copyArticleLink() {
         ElMessage.error(err.message)
       });
 }
-function closeArticle() {
-  isLink.value = false
-  articleStore.closeArticle()
-}
+
+const route = useRoute()
+articleStore.loadOnlyArticle(Number(route.params.articleId))
+
 function clickInput() {
   articleStore.activeInput()
 }
@@ -148,44 +150,52 @@ function toUser(userId){
   });
   window.open(routeUrl.href, '_blank');
 }
-
 </script>
 
 <style scoped lang="less">
 .loader {
-  width: 44px;
-  aspect-ratio: 2;
-  --_g: no-repeat radial-gradient(circle closest-side,#fff 90%,#0000);
+  height: 15px;
+  aspect-ratio: 4;
+  --_g: no-repeat radial-gradient(farthest-side,#000 90%,#0000);
   background:
-      var(--_g) 0%   50%,
-      var(--_g) 50%  50%,
-      var(--_g) 100% 50%;
-  background-size: calc(100%/3) 50%;
-  animation: l3 1s infinite linear;
+      var(--_g) left,
+      var(--_g) right;
+  background-size: 25% 100%;
+  display: grid;
 }
-@keyframes l3 {
-  20%{background-position:0%   0%, 50%  50%,100%  50%}
-  40%{background-position:0% 100%, 50%   0%,100%  50%}
-  60%{background-position:0%  50%, 50% 100%,100%   0%}
-  80%{background-position:0%  50%, 50%  50%,100% 100%}
+.loader:before,
+.loader:after {
+  content: "";
+  height: inherit;
+  aspect-ratio: 1;
+  grid-area: 1/1;
+  margin: auto;
+  border-radius: 50%;
+  transform-origin: -100% 50%;
+  background: #000;
+  animation: l49 1s infinite linear;
+}
+.loader:after {
+  transform-origin: 200% 50%;
+  --s:-1;
+  animation-delay: -.5s;
 }
 
-.modal-mask {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  //z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
+@keyframes l49 {
+  58%,
+  100% {transform: rotate(calc(var(--s,1)*1turn))}
+}
+.only {
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  transition: opacity .3s ease;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  background-color: var(--side-bar-bac-color);
   .article {
     display: flex;
-    flex-shrink: 0;
-    height: 700px;
+    flex-shrink: 1;
+    height: 640px;
     width: 950px;
     background-color: var(--side-bar-bac-color);
     transition: all 0.3s ease;
@@ -383,43 +393,6 @@ function toUser(userId){
       .publish-container.active {
         transform: translateY(0px);
       }
-    }
-  }
-}
-.modal-enter-from {
-  opacity: 0;
-}
-.modal-leave-to {
-  opacity: 0;
-}
-.modal-enter-from .article,
-.modal-leave-to .article {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
-}
-</style>
-<style lang="less">
-.el-carousel {
-  height: 100%;
-}
-.article .el-carousel__container {
-  height: 100%;
-}
-.el-input__wrapper {
-  border-radius: 20px;
-}
-.article {
-  .el-input__wrapper {
-    padding: 0;
-    border-radius: 999px;
-    overflow: hidden;
-    box-shadow: none;
-    .el-input__inner {
-      font-size: 16px;
-      color: var(--input-color);
-      background: var(--article-input-bac-color);
-      padding: 0 84px 0 16px;
-      height: 100%;
     }
   }
 }

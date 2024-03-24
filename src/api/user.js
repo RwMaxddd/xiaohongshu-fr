@@ -8,3 +8,19 @@ export const getAvatar = (userId) => {
         }
     })
 }
+//获取用户信息
+export const getUserInfo = (userId) => {
+    return request.get('/getUserInfo',{
+        params: {
+            user_id: userId
+        }
+    })
+}
+//更新用户信息
+export const updateUserInfo = (formData) => {
+    return request.post('/updateUserInfo',formData,{
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}

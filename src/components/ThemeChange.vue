@@ -1,31 +1,29 @@
 <template>
   <div class="multistage-toggle">
-    <div class="toggle-item" :class="{'toggle-item-focus':isSunny}" @click="changeTheme('Sunny')">
+    <div class="toggle-item" :class="{'toggle-item-focus':isSunny}" @click="changeTheme('sunny')">
       <Sunny class="Sunny"></Sunny>
     </div>
-    <div class="toggle-item" :class="{'toggle-item-focus':isMoon}" @click="changeTheme('Moon')">
+    <div class="toggle-item" :class="{'toggle-item-focus':isMoon}" @click="changeTheme('moon')">
       <Moon class="Moon"></Moon>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useTheme } from '../utils/useTheme'
 import { Sunny, Moon } from '@element-plus/icons-vue'
-import {computed, ref} from "vue";
+import {computed} from "vue";
 
-const nowTheme = ref('Sunny');
+const { theme } = useTheme()
 const isSunny = computed(() => {
-  return nowTheme.value === 'Sunny' ? true : false;
+  return theme.value === 'light' ? true : false;
 })
 const isMoon = computed(() => {
-  return nowTheme.value === 'Moon' ? true : false;
+  return theme.value === 'dark' ? true : false;
 })
 
-function changeTheme(theme){
-  if(theme != nowTheme.value){
-    nowTheme.value = theme;
-    document.body.classList.toggle('dark')
-  }
+function changeTheme(themeType){
+  theme.value = themeType === 'sunny' ? 'light' : 'dark'
 }
 </script>
 
