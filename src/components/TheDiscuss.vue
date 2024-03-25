@@ -10,8 +10,11 @@ import WaterfallArticles  from './WaterfallArticles'
 
 const articleStore = useArticleStore()
 articleStore.loadArticle('discuss')
+
 </script>
 
 <style scoped lang="less">
-
+.discuss {
+  overflow: auto;
+}
 </style>

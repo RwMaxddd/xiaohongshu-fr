@@ -21,13 +21,13 @@
         <div class="content">
           <button id="sign-up-btn" @click="signUp">注册</button>
         </div>
-        <img src="../assets/log.svg" alt="">
+        <img src="../assets/5.png" alt="" style="width: 300px;">
       </div>
       <div class="desc-warp-item sign-in-desc">
         <div class="content">
           <button id="sign-in-btn" @click="signIn">登录</button>
         </div>
-        <img src="../assets/register.svg" alt="">
+        <img src="../assets/6.png" alt="" style="width: 300px;">
       </div>
     </div>
   </div>
@@ -100,7 +100,6 @@ async function login(e){
     }
   }catch (e) {
     ElMessage.error(e.message)
-    // console.log(e.message)
   }
 }
 </script>

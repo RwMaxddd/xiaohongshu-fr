@@ -72,6 +72,7 @@ const typeObj = {
 const articleStore = useArticleStore()
 articleStore.loadExamineArticles()
 const handleEdit = (article_id) => {
+  articleStore.isRead = true
   articleStore.readArticle(article_id)
 }
 const handleAgree = async (index, article_id) => {
@@ -97,8 +98,24 @@ const handleDelete = (index) => {
   overflow: auto;
 }
 </style>
-<style>
-.admin .el-button+.el-button {
-  margin: 0 12px 0 0;
+<style lang="less">
+.admin {
+  .el-button+.el-button {
+    margin: 0 12px 0 0;
+  }
+  .el-table thead {
+    color: var(--article-title-color);
+  }
+  .el-table th.el-table__cell {
+    background-color: var(--side-bar-bac-color);
+  }
+  .el-table tr {
+    background-color: var(--side-bar-bac-color);
+  }
+  .el-table {
+    color: var(--article-title-color);
+    --el-table-row-hover-bg-color:var(--side-bar-item-background-color-hover);
+  }
 }
+
 </style>
