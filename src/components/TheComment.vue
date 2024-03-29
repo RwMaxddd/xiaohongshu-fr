@@ -19,8 +19,9 @@
       <div class="info">
         <span class="date">{{comment_time}}</span>
         <div class="interactions">
-          <div class="like" @click="tt">
-            <Star class="icon"></Star>
+          <div class="like">
+            <icon-heart style="font-size: 16px"/>
+            <icon-heart-fill style="font-size: 16px;color: rgb(255,36,66)"/>
             <span class="count">{{ like_count }}</span>
           </div>
           <div class="replay" @click="clickComment(parent_id,comment_id,user_name,content)">
@@ -35,9 +36,10 @@
 </template>
 
 <script setup>
-import { Star, ChatRound} from '@element-plus/icons-vue'
+import { ChatRound} from '@element-plus/icons-vue'
 import { useCommentStore } from '../store/comment'
 import { useArticleStore } from '../store/article'
+import { IconHeart, IconHeartFill } from '@arco-design/web-vue/es/icon';
 import { toRefs } from "vue";
 
 // eslint-disable-next-line no-undef
@@ -50,10 +52,6 @@ function clickComment(parent_id,comment_id,user_name,content){
   const articleStore = useArticleStore()
   articleStore.activeInput()
   commentStore.clickCommentIcon(pId,comment_id,user_name,content)
-}
-function tt() {
-  const commentStore = useCommentStore()
-  commentStore.commentList[0].replay_count += 1;
 }
 </script>
 

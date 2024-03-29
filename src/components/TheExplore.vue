@@ -12,33 +12,33 @@
     <div class="loading-box" style="display: flex;justify-content: center">
       <div class="loader" v-show="loading"></div>
     </div>
+    <TheEnd v-if="articleStore.isEnding"></TheEnd>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import { debounce } from '../utils/debounce'
-import {ref} from "vue";
+import { useArticleStore } from '../store/article'
+import { ref } from "vue";
+import TheEnd  from './TheEnd'
 
 const router = useRouter()
+const route = useRoute()
 function changeItem(itemName) {
   router.push({ name:itemName })
 }
 const explore = ref(null)
 const loading = ref(false)
-function handleScroll() {
-  // console.log('盒子高度',explore.value.clientHeight)
-  // console.log('盒子总高度',explore.value.scrollHeight)
-  // console.log('已经滚动',explore.value.scrollTop)
-  if (explore.value.scrollHeight - explore.value.clientHeight - explore.value.scrollTop <= 10){
+const articleStore = useArticleStore()
+async function handleScroll() {
+  if (!loading.value && explore.value.scrollHeight - explore.value.clientHeight - explore.value.scrollTop <= 10){
     loading.value = true
-    setTimeout(() => {
-      loading.value = false
-    },5000)
-    console.log('yes')
+    await articleStore.loadArticle(route.meta.secondItemName)
+    loading.value = false
   }
 }
-const debounceScroll = debounce(handleScroll,100)
+const debounceScroll = debounce(handleScroll,300)
 </script>
 
 <style scoped lang="less">
@@ -78,6 +78,9 @@ const debounceScroll = debounce(handleScroll,100)
       color: var(--aside-icon-color);
       background-color: var(--side-bar-item-background-color);
       cursor: pointer;
+      &:hover {
+        background-color: var(--side-bar-item-background-color-hover);
+      }
     }
     .btn.active {
       font-weight: 600;

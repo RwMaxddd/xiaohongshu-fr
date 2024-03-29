@@ -1,12 +1,13 @@
 import request from '../axios/index'
 
 //获取文章
-export const getArticles = (type) => {
+export const getArticles = (userId,type,startIndex,pageSize) => {
     return request.get('/getArticles',{
         params: {
+            userId:userId,
             articleType:type,
-            page:0,
-            pageSize:30
+            page:startIndex,
+            pageSize:pageSize
         },
     })
 }
@@ -31,11 +32,26 @@ export const agreeArticles = (article_id) => {
     const data = {article_id}
     return request.patch('/agreeArticles',data)
 }
-
 export const getOnlyArticle = (articleId) => {
     return request.get('/getOnlyArticle',{
         params: {
             articleId
+        },
+    })
+}
+//文章搜索提示
+export const searchTips = (keyWord) => {
+    return request.get('/searchTips',{
+        params: {
+            keyWord
+        },
+    })
+}
+//搜索特定文章
+export const searchArticles = (keyWord) => {
+    return request.get('/searchArticles',{
+        params: {
+            keyWord,
         },
     })
 }

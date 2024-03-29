@@ -23,13 +23,13 @@ const routes = [
                         path: 'TheDiscuss',
                         name:'discuss',
                         component: () => import('../components/TheDiscuss'),
-                        meta: {secondItemName: 'discuss'},
+                        meta: {secondItemName: 'discuss',init: true},
                     },
                     {
                         path: 'ThePopularization',
                         name:'popularization',
                         component: () => import('../components/ThePopularization'),
-                        meta: {secondItemName: 'popularization'},
+                        meta: {secondItemName: 'popularization',init: true},
                     }
                 ],
                 redirect: { name: 'discuss' }
@@ -44,7 +44,7 @@ const routes = [
                 path: 'TheUser/:id',
                 name:'user',
                 component: () => import('../components/TheUser'),
-                meta: { itemName: 'user' },
+                meta: { itemName: 'user',init: true},
             },
             {
                 path: 'TheAdmin',
@@ -56,7 +56,13 @@ const routes = [
                 path: 'Article/:articleId',
                 name:'article',
                 component: () => import('../components/OnlyArticle'),
-                meta: { itemName: 'article' },
+                meta: { itemName: 'article',init: true},
+            },
+            {
+                path: 'Search',
+                name:'search',
+                component: () => import('../components/TheSearch'),
+                meta: { itemName: 'explore',init: true},
             },
         ],
         redirect: { name: 'explore' }
@@ -92,6 +98,10 @@ router.afterEach((to, from) => {
     if (from.name === 'article'){
         const articleStore = useArticleStore()
         articleStore.closeArticle()
+    }
+    if (from.meta.init && to.fullPath != from.fullPath){
+        const articleStore = useArticleStore()
+        articleStore.init()
     }
 })
 

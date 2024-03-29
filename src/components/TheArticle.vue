@@ -50,8 +50,9 @@
               <el-input v-model="input" placeholder="Please input" @click="clickInput" :class="{active:articleStore.isInput}"/>
               <div class="buttons">
                 <div class="item">
-                  <Star class="icon"></Star>
-                  <span class="count">{{ articleStore.currentArticle.like_count }}</span>
+                  <icon-heart style="font-size: 24px;" v-if="!isLike" @click="agreeArticle"/>
+                  <icon-heart-fill style="font-size: 24px;color: rgb(255,36,66)" v-else  @click="cancelAgreeArticle"/>
+                  <span class="count">{{ likeCount }}</span>
                 </div>
                 <div class="item">
                   <ChatRound class="icon"></ChatRound>
@@ -82,11 +83,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref, watch, watchEffect} from 'vue'
 import { useArticleStore } from '../store/article'
 import { useUserStore } from '../store/user'
 import { useCommentStore} from '../store/comment'
-import { Star, ChatRound, Link, Check} from '@element-plus/icons-vue'
+import { ChatRound, Link, Check} from '@element-plus/icons-vue'
+import { IconHeart, IconHeartFill } from '@arco-design/web-vue/es/icon';
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import TheComment from './TheComment'
@@ -97,6 +99,23 @@ const articleStore = useArticleStore()
 const commentStore = useCommentStore()
 const input = ref('')
 const isLink = ref(false)
+const isLike = ref(false)
+const likeCount = ref(0)
+
+watchEffect(() => {
+  isLike.value = articleStore.currentArticle.isLike
+})
+watch(() => articleStore.currentArticle.comment_count, (newValue) => {
+  likeCount.value = newValue
+})
+function agreeArticle() {
+  isLike.value = true
+  likeCount.value += 1
+}
+function cancelAgreeArticle() {
+  isLike.value = false
+  likeCount.value -= 1
+}
 function copyArticleLink() {
   isLink.value = true
   const articleUrl = `http://localhost:8080/#/TheGlobal/Article/${articleStore.currentArticle.article_id}`

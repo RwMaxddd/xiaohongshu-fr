@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { getArticles, getUserArticles, getExamineArticles, getOnlyArticle} from '../api/articles'
+import { getArticles, getUserArticles, getExamineArticles, getOnlyArticle, searchArticles} from '../api/articles'
 import { useCommentStore } from './comment'
+import { useUserStore } from './user'
 
 export const useArticleStore = defineStore('article', {
     state: () => {
@@ -10,10 +11,26 @@ export const useArticleStore = defineStore('article', {
             currentArticle:{},
             isInput:false,
             isRead:false,
-            loading:true
+            loading:true,
+            page:1,
+            pageSize:12,
+            isEnding:false
         }
     },
     actions: {
+        init() {
+            this.$patch({
+                articleList:[],
+                currentArticleId:-1,
+                currentArticle:{},
+                // isInput:false,
+                // isRead:false,
+                // loading:true,
+                page:1,
+                pageSize:12,
+                isEnding:false
+            })
+        },
         readArticle(articleId) {
             this.$patch((state) => {
                 state.currentArticle = state.articleList.find((item) => item.article_id === articleId)
@@ -25,11 +42,11 @@ export const useArticleStore = defineStore('article', {
         },
         closeArticle() {
             const commentStore = useCommentStore()
+            this.currentArticle={}
             this.$patch({
                 currentArticleId: -1,
                 isInput:false,
                 isRead:false,
-                currentArticle:{}
             })
             commentStore.closeComment()
         },
@@ -43,15 +60,21 @@ export const useArticleStore = defineStore('article', {
         },
         async loadOnlyArticle(articleId) {
             this.loading = true
-            this.articleList = []
             const data = await getOnlyArticle(articleId)
             this.articleList = data.data
             this.readArticle(articleId)
         },
         async loadArticle(type) {
-            this.articleList = []
-            const data = await getArticles(type)
-            this.articleList = data.data
+            const userStore = useUserStore()
+            if (!this.isEnding){
+                const startIndex = this.pageSize * (this.page - 1)
+                const data = await getArticles(userStore.userId,type,startIndex,this.pageSize)
+                if (data.data.length < this.pageSize) {
+                    this.isEnding = true
+                }
+                this.page += 1
+                this.articleList.push(...data.data)
+            }
         },
         async loadExamineArticles() {
             this.articleList = []
@@ -59,9 +82,12 @@ export const useArticleStore = defineStore('article', {
             this.articleList = data.data
         },
         async loadUserArticle(userId) {
-            this.articleList = []
             const data = await getUserArticles(userId)
             this.articleList = data.data
-        }
+        },
+        async loadSearchArticles(keyWord) {
+            const data = await searchArticles(keyWord)
+            this.articleList = data.data
+        },
     },
 })

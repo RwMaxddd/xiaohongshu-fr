@@ -3,6 +3,7 @@
 </template>
 
 <script setup>
+
 const debounce = (fn, delay) => {
   let timer
   return (...args) => {
@@ -22,6 +23,7 @@ window.ResizeObserver = class ResizeObserver extends _ResizeObserver{
     super(callback);
   }
 }
+
 </script>
 
 <style>

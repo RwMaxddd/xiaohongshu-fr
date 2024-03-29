@@ -29,7 +29,8 @@
                 <span>{{ item.user_name }}</span>
               </a>
               <span class="like-wrapper">
-            <Star class="icon"></Star>
+            <icon-heart style="font-size: 16px" v-if="!item.isLike"/>
+            <icon-heart-fill style="font-size: 16px;color: rgb(255,36,66)" v-else/>
             <span class="count">{{ item.like_count }}</span>
           </span>
             </div>
@@ -41,13 +42,13 @@
 </template>
 
 <script setup>
-import { Star} from '@element-plus/icons-vue'
 import { LazyImg, Waterfall } from "vue-waterfall-plugin-next";
 import { useArticleStore } from '../store/article'
 import { useUserStore } from '../store/user'
 import { loadProps, breakpoints} from '../const/waterfallProps'
 import 'vue-waterfall-plugin-next/dist/style.css'
 import {toRef} from "vue";
+import { IconHeart, IconHeartFill } from '@arco-design/web-vue/es/icon';
 
 // eslint-disable-next-line no-undef
 const props = defineProps(['articleList'])
