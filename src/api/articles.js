@@ -13,9 +13,10 @@ export const getArticles = (userId,type,startIndex,pageSize) => {
 }
 
 //获取某用户发布的文章
-export const getUserArticles = (userId) => {
+export const getUserArticles = (userId,currentUserId) => {
     return request.get('/getUserArticles',{
         params: {
+            currentUserId,
             userId: userId,
             page:0,
             pageSize:30
@@ -32,9 +33,10 @@ export const agreeArticles = (article_id) => {
     const data = {article_id}
     return request.patch('/agreeArticles',data)
 }
-export const getOnlyArticle = (articleId) => {
+export const getOnlyArticle = (userId,articleId) => {
     return request.get('/getOnlyArticle',{
         params: {
+            userId: userId,
             articleId
         },
     })
@@ -48,10 +50,19 @@ export const searchTips = (keyWord) => {
     })
 }
 //搜索特定文章
-export const searchArticles = (keyWord) => {
+export const searchArticles = (keyWord,userId) => {
     return request.get('/searchArticles',{
         params: {
             keyWord,
+            userId
         },
     })
+}
+//点赞文章
+export const agreeArticleApi = (likeData) => {
+    return request.post('/agreeArticles',likeData)
+}
+//取消点赞文章
+export const cancelAgreeArticleApi = (likeData) => {
+    return request.post('/cancelAgreeArticles',likeData)
 }

@@ -20,8 +20,8 @@
         <span class="date">{{comment_time}}</span>
         <div class="interactions">
           <div class="like">
-            <icon-heart style="font-size: 16px"/>
-            <icon-heart-fill style="font-size: 16px;color: rgb(255,36,66)"/>
+            <icon-heart style="font-size: 16px" v-if="!isLike" @click="agreeComment"/>
+            <icon-heart-fill style="font-size: 16px;color: rgb(255,36,66)" @click="cancelAgreeComment" v-else/>
             <span class="count">{{ like_count }}</span>
           </div>
           <div class="replay" @click="clickComment(parent_id,comment_id,user_name,content)">
@@ -39,12 +39,59 @@
 import { ChatRound} from '@element-plus/icons-vue'
 import { useCommentStore } from '../store/comment'
 import { useArticleStore } from '../store/article'
+import { useUserStore } from '../store/user'
 import { IconHeart, IconHeartFill } from '@arco-design/web-vue/es/icon';
-import { toRefs } from "vue";
+import {ref, toRefs} from "vue";
+import {getCurrentTimeString} from "@/utils/time";
+import { agreeCommentApi, cancelAgreeCommentsApi } from "../api/comment";
+import {ElMessage} from "element-plus";
 
 // eslint-disable-next-line no-undef
 const props = defineProps(['dataObj'])
-const {user_name, photo, comment_time, content, like_count, parent_id, comment_id, replay_name} = toRefs(props.dataObj)
+const {user_name, photo, comment_time, content, parent_id, comment_id, replay_name} = toRefs(props.dataObj)
+const like_count = ref(props.dataObj.like_count)
+const isLike = ref(props.dataObj.isLike)
+const userStore = useUserStore()
+let likeCommentId = ref(props.dataObj.like_id)
+
+async function agreeComment() {
+  if (userStore.isLogin){
+    isLike.value = true
+    like_count.value += 1
+    const likeData = {
+      userId:userStore.userId,
+      commentId:comment_id.value,
+      likedAt:getCurrentTimeString(),
+    }
+    try {
+      const likeId = (await agreeCommentApi(likeData)).likeId
+      likeCommentId.value = likeId
+    }catch (e) {
+      ElMessage.error(e.message)
+    }
+  }else {
+    ElMessage.error('未登录')
+  }
+}
+async function cancelAgreeComment() {
+  if (userStore.isLogin){
+    isLike.value = false
+    like_count.value -= 1
+    if (likeCommentId.value !== -1){
+      const cancelData = {
+        commentId:comment_id.value,
+        likeId:likeCommentId.value,
+      }
+      try {
+        await cancelAgreeCommentsApi(cancelData)
+      }catch (e) {
+        ElMessage.error(e.message)
+      }
+    }
+  }else {
+    ElMessage.error('未登录')
+  }
+}
 
 function clickComment(parent_id,comment_id,user_name,content){
   const pId = parent_id === 0 ? comment_id : parent_id;

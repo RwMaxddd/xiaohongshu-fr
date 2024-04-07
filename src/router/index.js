@@ -1,4 +1,6 @@
 import { createRouter,createWebHashHistory } from 'vue-router'
+import { useUserStore } from '../store/user'
+import { useArticleStore } from '../store/article'
 const routes = [
     {
         path: '/',
@@ -47,6 +49,27 @@ const routes = [
                 meta: { itemName: 'user',init: true},
             },
             {
+                path: 'TheInform',
+                name:'inform',
+                component: () => import('../components/TheInform'),
+                meta: { itemName: 'inform'},
+                children: [
+                    {
+                        path: 'Agree',
+                        name:'agree',
+                        component: () => import('../components/AgreeMessage'),
+                        meta: {secondItemName: 'agree'},
+                    },
+                    {
+                        path: 'Comment',
+                        name:'comment',
+                        component: () => import('../components/CommentMessage'),
+                        meta: {secondItemName: 'comment'},
+                    },
+                ],
+                redirect: { name: 'agree' }
+            },
+            {
                 path: 'TheAdmin',
                 name:'admin',
                 component: () => import('../components/TheAdmin'),
@@ -74,8 +97,6 @@ const router = createRouter({
     routes,
 })
 
-import { useUserStore } from '../store/user'
-import { useArticleStore } from '../store/article'
 router.beforeEach( async (to) => {
     const userStore = useUserStore()
     if (!userStore.isVerify){

@@ -6,32 +6,32 @@
     <div class="article" v-else>
       <div class="media-container">
         <el-carousel trigger="click" :autoplay="false">
-          <el-carousel-item v-for="(item,index) in articleStore.currentArticle.imagesSrc" :key="index" class="carousel-item" :motion-blur="true">
+          <el-carousel-item v-for="(item,index) in articleStore.articleList[currentArticleIndex].imagesSrc" :key="index" class="carousel-item" :motion-blur="true">
             <img :src="item" alt="error">
           </el-carousel-item>
         </el-carousel>
       </div>
       <div class="text-container">
         <div class="author-container">
-          <div class="info" @click.prevent="toUser(articleStore.currentArticle.author_id)">
+          <div class="info" @click.prevent="toUser(articleStore.articleList[currentArticleIndex].author_id)">
             <a href="#" class="avatar">
-              <img :src="articleStore.currentArticle.photo" alt="error">
+              <img :src="articleStore.articleList[currentArticleIndex].photo" alt="error">
             </a>
             <a href="#" class="name">
-              <span>{{ articleStore.currentArticle.user_name }}</span>
+              <span>{{ articleStore.articleList[currentArticleIndex].user_name }}</span>
             </a>
           </div>
-          <FollowBtn></FollowBtn>
+          <FollowBtn v-if="isShowFollowBtn" :data="data" @handleFollow="handleFollow" @cancelFollow="cancelFollow"></FollowBtn>
         </div>
         <div class="note-scroller">
           <div class="note-content">
             <div class="title">
-              <span>{{ articleStore.currentArticle.title }}</span>
+              <span>{{ articleStore.articleList[currentArticleIndex].title }}</span>
             </div>
             <div class="desc">
-              <span>{{ articleStore.currentArticle.content }}</span>
+              <span>{{ articleStore.articleList[currentArticleIndex].content }}</span>
             </div>
-            <div class="bottom-container">{{ articleStore.currentArticle.publish_time }}</div>
+            <div class="bottom-container">{{ articleStore.articleList[currentArticleIndex].publish_time }}</div>
           </div>
           <div class="comments-el">
             <LoadingComment></LoadingComment>
@@ -52,12 +52,13 @@
             <el-input v-model="input" placeholder="Please input" @click="clickInput" :class="{active:articleStore.isInput}"/>
             <div class="buttons">
               <div class="item">
-                <Star class="icon"></Star>
-                <span class="count">{{ articleStore.currentArticle.like_count }}</span>
+                <icon-heart style="font-size: 24px;" v-if="!isLike" @click="agreeArticle"/>
+                <icon-heart-fill style="font-size: 24px;color: rgb(255,36,66)" v-else  @click="cancelAgreeArticle"/>
+                <span class="count">{{ likeCount }}</span>
               </div>
               <div class="item">
                 <ChatRound class="icon"></ChatRound>
-                <span class="count">{{ articleStore.currentArticle.comment_count }}</span>
+                <span class="count">{{ articleStore.articleList[currentArticleIndex].comment_count }}</span>
               </div>
               <div class="item">
                 <Link class="icon" v-if="!isLink" @click="copyArticleLink"></Link>
@@ -83,25 +84,110 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {computed, ref, watch} from 'vue'
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '../store/article'
 import { useUserStore } from '../store/user'
 import { useCommentStore} from '../store/comment'
-import { Star, ChatRound, Link, Check} from '@element-plus/icons-vue'
+import { ChatRound, Link, Check} from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { IconHeart, IconHeartFill } from '@arco-design/web-vue/es/icon';
 import { useRouter } from 'vue-router'
 import TheComment from './TheComment'
 import LoadingComment from './LoadingComment'
 import FollowBtn from './FollowBtn'
+import {getCurrentTimeString} from "@/utils/time";
+import {agreeArticleApi, cancelAgreeArticleApi} from "@/api/articles";
+import { checkIsFans } from "../api/user"
+import {useFollow} from "@/utils/useFollow";
 
 const articleStore = useArticleStore()
 const commentStore = useCommentStore()
+const userStore = useUserStore()
 const input = ref('')
 const isLink = ref(false)
+const isLike = ref(false)
+const likeCount = ref(0)
+const currentArticleIndex = ref(-1)
+const isFans = ref(false)
+
+watch(() => articleStore.onlyIsRead, async (newValue) => {
+  const currentUserId = userStore.userId
+  if (newValue != false && currentUserId){
+    const authorId = articleStore.articleList[articleStore.currentArticleIndex].author_id
+    if (authorId != currentUserId){
+      try {
+        const data =(await checkIsFans(authorId,currentUserId)).data
+        isFans.value = data.isFans
+      }catch (e) {
+        ElMessage.error(e.message)
+        console.log(e.message)
+      }
+    }
+  }
+})
+
+watch(() => articleStore.currentArticleIndex, (newValue) => {
+  if (newValue !== -1) {
+    currentArticleIndex.value = newValue
+    isLike.value = articleStore.articleList[newValue].isLike
+    likeCount.value = articleStore.articleList[newValue].like_count
+  }
+})
+const { data,handleFollow,cancelFollow } = useFollow(isFans)
+const isShowFollowBtn = computed(() => {
+  const tmp = articleStore.articleList[currentArticleIndex.value].author_id
+  if (userStore.userId) {
+    return tmp !== userStore.userId
+  }else {
+    return false
+  }
+})
+async function agreeArticle() {
+  if (userStore.isLogin){
+    isLike.value = true
+    likeCount.value += 1
+    articleStore.articleList[currentArticleIndex.value].isLike = true
+    articleStore.articleList[currentArticleIndex.value].like_count += 1
+    const likeData = {
+      userId:userStore.userId,
+      articleId:articleStore.currentArticleId,
+      likedAt:getCurrentTimeString(),
+    }
+    try {
+      const likeId = (await agreeArticleApi(likeData)).likeId
+      articleStore.articleList[currentArticleIndex.value].like_id = likeId
+    }catch (e) {
+      ElMessage.error(e.message)
+    }
+  }else {
+    ElMessage.error('未登录')
+  }
+}
+async function cancelAgreeArticle() {
+  if (userStore.isLogin){
+    isLike.value = false
+    likeCount.value -= 1
+    articleStore.articleList[currentArticleIndex.value].isLike = false
+    articleStore.articleList[currentArticleIndex.value].like_count -= 1
+    if (articleStore.articleList[currentArticleIndex.value].like_id !== -1){
+      const cancelData = {
+        articleId:articleStore.currentArticleId,
+        likeId:articleStore.articleList[currentArticleIndex.value].like_id,
+      }
+      try {
+        await cancelAgreeArticleApi(cancelData)
+      }catch (e) {
+        ElMessage.error(e.message)
+      }
+    }
+  }else {
+    ElMessage.error('未登录')
+  }
+}
 function copyArticleLink() {
   isLink.value = true
-  const articleUrl = `http://localhost:8080/#/TheGlobal/Article/${articleStore.currentArticle.article_id}`
+  const articleUrl = `http://localhost:8080/#/TheGlobal/Article/${articleStore.articleList[currentArticleIndex.value].article_id}`
   navigator.clipboard.writeText(articleUrl)
       .then(() => {
         ElMessage({
@@ -116,7 +202,7 @@ function copyArticleLink() {
 }
 
 const route = useRoute()
-articleStore.loadOnlyArticle(Number(route.params.articleId))
+articleStore.loadOnlyArticle(userStore.userId,Number(route.params.articleId))
 
 function clickInput() {
   articleStore.activeInput()
@@ -126,9 +212,8 @@ function cancleBtn() {
   input.value = ''
 }
 
-const userStore = useUserStore()
 function publishComment() {
-  if (!articleStore.currentArticle.examine) {
+  if (!articleStore.articleList[currentArticleIndex.value].examine) {
     ElMessage.error('该帖子目前正在审核中')
   }
   else if (userStore.userId === ''){

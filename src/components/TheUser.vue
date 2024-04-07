@@ -28,7 +28,7 @@
         </div>
         <div class="btn">
           <ModifyBtn v-if="userStore.userId === currentUserId" @click="userStore.isShowModifyForm = true"></ModifyBtn>
-          <FollowBtn v-else></FollowBtn>
+          <FollowBtn v-else :data="data" @handleFollow="handleFollow" @cancelFollow="cancelFollow"></FollowBtn>
         </div>
       </div>
     </div>
@@ -52,7 +52,8 @@ import FollowBtn from './FollowBtn'
 import ModifyBtn from './ModifyBtn'
 import ModifyForm from './ModifyForm'
 import {getUserInfo} from '../api/user'
-import {ref, watchEffect} from "vue";
+import { ref, watchEffect} from "vue";
+import { useFollow } from "../utils/useFollow"
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -63,17 +64,20 @@ const userInfo = ref({
   fans_count:0,
   like_count:0,
 })
+const isFans = ref(false)
+const { data,handleFollow,cancelFollow } = useFollow(isFans)
 const currentUserId = ref(route.params.id)
 const userInfoLoader = ref(true)
 async function getCurrentUserInfo() {
   userInfoLoader.value = true
-  const msgData = await getUserInfo(route.params.id)
+  const msgData = await getUserInfo(route.params.id,userStore.userId)
   userInfo.value.user_name = msgData.data.user_name
   userInfo.value.intro = msgData.data.intro
   userInfo.value.photo = msgData.data.photo
   userInfo.value.fans_count = msgData.data.fans_count
   userInfo.value.like_count = msgData.data.like_count
   userInfoLoader.value = false
+  isFans.value = msgData.data.isFans
 }
 
 const articleStore = useArticleStore()
@@ -182,6 +186,7 @@ watchEffect(() => {
         }
       }
       .btn {
+        align-self: start;
         margin-left: 40px;
         cursor:pointer;
       }

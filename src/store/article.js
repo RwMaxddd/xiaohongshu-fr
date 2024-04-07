@@ -8,9 +8,10 @@ export const useArticleStore = defineStore('article', {
         return {
             articleList:[],
             currentArticleId:-1,
-            currentArticle:{},
+            currentArticleIndex:-1,
             isInput:false,
             isRead:false,
+            onlyIsRead:false,
             loading:true,
             page:1,
             pageSize:12,
@@ -22,8 +23,7 @@ export const useArticleStore = defineStore('article', {
             this.$patch({
                 articleList:[],
                 currentArticleId:-1,
-                currentArticle:{},
-                // isInput:false,
+                isInput:false,
                 // isRead:false,
                 // loading:true,
                 page:1,
@@ -33,7 +33,7 @@ export const useArticleStore = defineStore('article', {
         },
         readArticle(articleId) {
             this.$patch((state) => {
-                state.currentArticle = state.articleList.find((item) => item.article_id === articleId)
+                state.currentArticleIndex = state.articleList.findIndex((item) => item.article_id === articleId)
                 state.currentArticleId = articleId
             })
             this.loading = false
@@ -42,11 +42,12 @@ export const useArticleStore = defineStore('article', {
         },
         closeArticle() {
             const commentStore = useCommentStore()
-            this.currentArticle={}
+            this.currentArticleIndex=-1
             this.$patch({
                 currentArticleId: -1,
                 isInput:false,
                 isRead:false,
+                onlyIsRead:false,
             })
             commentStore.closeComment()
         },
@@ -58,10 +59,11 @@ export const useArticleStore = defineStore('article', {
             this.isInput = false
             commentStore.cancelComment()
         },
-        async loadOnlyArticle(articleId) {
+        async loadOnlyArticle(userId,articleId) {
             this.loading = true
-            const data = await getOnlyArticle(articleId)
+            const data = await getOnlyArticle(userId,articleId)
             this.articleList = data.data
+            this.onlyIsRead = true
             this.readArticle(articleId)
         },
         async loadArticle(type) {
@@ -82,11 +84,14 @@ export const useArticleStore = defineStore('article', {
             this.articleList = data.data
         },
         async loadUserArticle(userId) {
-            const data = await getUserArticles(userId)
+            const userStore = useUserStore()
+            const data = await getUserArticles(userId,userStore.userId)
             this.articleList = data.data
         },
         async loadSearchArticles(keyWord) {
-            const data = await searchArticles(keyWord)
+            const userStore = useUserStore()
+            const data = await searchArticles(keyWord,userStore.userId)
+            this.isEnding = true
             this.articleList = data.data
         },
     },

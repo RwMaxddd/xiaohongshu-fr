@@ -8,10 +8,12 @@
         <button class="submit-btn">立即登录</button>
       </form>
 
-      <form class="sign-up-form" id="signUpForm" ref="registerForm" @submit="register">
+      <form class="sign-up-form" id="signUpForm" ref="registerForm" @submit="register" @input="debounceInput">
         <h2 class="form-title">注册</h2>
-        <input type="text" placeholder="用户id" name="user_id"  autocomplete="username"/>
-        <input type="password" placeholder="密码" name="password" autocomplete="current-password"/>
+        <input type="text" placeholder="用户id" name="user_id"  autocomplete="username" class="input" ref="registerU"  :class="{error:!userNameIsRight}"/>
+        <div class="error-message" v-show="!userNameIsRight">{{ usernameTips }}</div>
+        <input type="password" placeholder="密码" name="password" autocomplete="current-password" class="input" ref="registerP"  :class="{error:!passwordIsRight}"/>
+        <div class="error-message" v-show="!passwordIsRight">{{ passwordTips }}</div>
         <button class="submit-btn">立即注册</button>
       </form>
     </div>
@@ -38,13 +40,33 @@ import {ref} from "vue";
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../store/user'
+import { debounce } from '../utils/debounce'
+
+const usernamePattern = /^[a-zA-Z0-9]{5,12}$/;
+const passwordPattern = /^[a-zA-Z0-9]{6,15}$/;
+const usernameTips = '用户名由英文字母或数字组成，且长度为5到12个字符'
+const passwordTips = '密码由英文字母或数字组成，且长度为6到15个字符'
 
 const router = useRouter()
 const container = ref(null)
 const loginForm = ref(null)
 const registerForm = ref(null)
 const userStore = useUserStore()
+const registerU = ref(null)
+const registerP = ref(null)
+const userNameIsRight = ref(false)
+const passwordIsRight = ref(false)
 
+function registerVerify() {
+  userNameIsRight.value = usernamePattern.test(registerU.value.value)
+  passwordIsRight.value = passwordPattern.test(registerP.value.value)
+  if (userNameIsRight.value && passwordIsRight.value){
+    return true
+  }else {
+    return false
+  }
+}
+const debounceInput = debounce(registerVerify,300)
 function signUp(){
   container.value.classList.add('sign-up-mode')
 }
@@ -54,25 +76,27 @@ function signIn(){
 
 async function register(e){
   e.preventDefault();
-  try {
-    const response = await fetch('http://127.0.0.1:3000/register',{
-      method:"POST",
-      body: new FormData(registerForm.value)
-    })
-    if (!response.ok) {
-      const errorMessage = await response.json()
-      throw new Error(errorMessage.msg);
-    }else{
-      const value = await response.json()
-      ElMessage({
-        message: value.msg,
-        type: 'success',
+  if (registerVerify()){
+    try {
+      const response = await fetch('http://127.0.0.1:3000/register',{
+        method:"POST",
+        body: new FormData(registerForm.value)
       })
-      await router.go(0)
+      if (!response.ok) {
+        const errorMessage = await response.json()
+        throw new Error(errorMessage.msg);
+      }else{
+        const value = await response.json()
+        ElMessage({
+          message: value.msg,
+          type: 'success',
+        })
+        await router.go(0)
+      }
+    }catch (e) {
+      ElMessage.error(e.message)
+      console.log(e.message)
     }
-  }catch (e) {
-    ElMessage.error(e.message)
-    console.log(e.message)
   }
 }
 
@@ -105,6 +129,13 @@ async function login(e){
 </script>
 
 <style scoped>
+.error-message {
+  font-size: 12px;
+  color: red;
+}
+.error {
+  border: 1px solid red;
+}
 .container {
   position: relative;
   min-height: 100vh;

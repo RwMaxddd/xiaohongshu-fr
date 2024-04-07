@@ -37,6 +37,7 @@
     --color-secondary-label-hover:#333;
     --search-border-color:rgb(255,255,255);
     --search-bac-color:rgb(255,255,255);
+    --comment-bac-color:rgb(235,235,235);
 }
 html[data-theme = 'dark'] {
     --nomal-background-color:rgb(18,18,18);
@@ -77,4 +78,5 @@ html[data-theme = 'dark'] {
     --color-secondary-label-hover:#fff;
     --search-border-color:hsla(0,0%,100%,0.08);
     --search-bac-color:rgb(24,24,24);
+    --comment-bac-color:rgb(24,24,24);
 }

@@ -88,7 +88,7 @@ function toLogin() {
 }
 function logOutBtn() {
   userStore.logOut()
-  router.push({ name: 'explore' })
+  window.location.href = 'http://localhost:8080/'
 }
 </script>
 

@@ -23,11 +23,10 @@ export const useCommentStore = defineStore('comment', {
         async loadComments(articleId) {
             try {
                 this.loadingCommentList = true
-                const data = await getComments(articleId)
+                const userStore = useUserStore()
+                const data = await getComments(userStore.userId,articleId)
                 this.loadingCommentList = false
-                if (this.commentList.length !== 0){
-                    this.commentList.pop()
-                }
+                this.commentList = []
                 this.commentList.push(...data.data)
             }catch (e) {
                 ElMessage.error('评论区数据获取失败')
