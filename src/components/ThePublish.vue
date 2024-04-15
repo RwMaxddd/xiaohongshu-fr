@@ -56,6 +56,18 @@
               />
             </el-select>
           </div>
+          <div class="demo-date-picker" v-if="isActivity">
+            <div class="block">
+              <el-date-picker
+                  v-model="value1"
+                  type="daterange"
+                  range-separator="To"
+                  start-placeholder="Start date"
+                  end-placeholder="End date"
+                  size="large"
+              />
+            </div>
+          </div>
           <el-input
               v-model="title"
               placeholder="填写标题，可能会有更多赞哦～"
@@ -82,10 +94,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {computed, ref} from 'vue'
 import { ElMessage } from 'element-plus'
 import { Delete, Plus, ZoomIn } from '@element-plus/icons-vue'
-import { getCurrentTimeString } from '../utils/time'
+import { getCurrentTimeString, getTimeString } from '../utils/time'
 import { publishArticle } from '../api/upload'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
@@ -100,6 +112,9 @@ const textarea = ref('')
 const router = useRouter()
 const value = ref('discuss')
 
+const isActivity = computed(() => value.value === 'activity')
+const value1 = ref('')
+
 const options = [
   {
     value: 'discuss',
@@ -108,6 +123,10 @@ const options = [
   {
     value: 'popularization',
     label: '科普',
+  },
+  {
+    value: 'activity',
+    label: '活动',
   }
 ]
 
@@ -144,6 +163,10 @@ async function handleSubmit(){
   formData.append('content',textarea.value)
   formData.append('type',value.value)
   formData.append('time',getCurrentTimeString())
+  if (value.value === 'activity') {
+    formData.append('startTime',getTimeString(value1.value[0]))
+    formData.append('endTime',getTimeString(value1.value[1]))
+  }
   for (const file of fileList.value) {
     formData.append('pictures',file.raw)
   }
@@ -214,6 +237,29 @@ async function handleSubmit(){
       }
     }
   }
+}
+.demo-date-picker {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.demo-date-picker .block {
+  padding: 0px 0 12px 0;
+  border-right: solid 1px var(--el-border-color);
+  flex: 1;
+}
+
+.demo-date-picker .block:last-child {
+  border-right: none;
+}
+
+.demo-date-picker .demonstration {
+  display: block;
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 </style>
 

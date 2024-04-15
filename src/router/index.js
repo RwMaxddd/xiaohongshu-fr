@@ -32,6 +32,12 @@ const routes = [
                         name:'popularization',
                         component: () => import('../components/ThePopularization'),
                         meta: {secondItemName: 'popularization',init: true},
+                    },
+                    {
+                        path: 'TheActivity',
+                        name:'activity',
+                        component: () => import('../components/TheActivity'),
+                        meta: {secondItemName: 'activity',init: true},
                     }
                 ],
                 redirect: { name: 'discuss' }

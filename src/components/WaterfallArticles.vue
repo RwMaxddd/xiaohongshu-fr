@@ -15,6 +15,11 @@
         <div class="card-item" @click.prevent="clickArticle(item.article_id)" v-if="item.examine || userStore.userId === $route.params.id">
           <a href="#" class="preview">
             <LazyImg :url='item.imagesSrc[0]' class="lazy-img"></LazyImg>
+            <div class="activityTip" v-if="item.type === 'activity'">
+              <span class="finish" v-if="item.activity_status === 'finish'">已结束</span>
+              <span class="underway" v-else-if="item.activity_status === 'underway'">进行中</span>
+              <span class="not-started" v-else>未开始</span>
+            </div>
             <div class="mask" v-if="!item.examine">
               <span>审核中</span>
             </div>
@@ -70,6 +75,26 @@ function clickArticle(articleId) {
     .lazy-img {
       width: 100%;
       border-radius: 18px;
+    }
+    .activityTip {
+      position: absolute;
+      display: flex;
+      top: 10px;
+      left: 4%;
+      color: white;
+      span {
+        border-radius: 6px;
+        padding: 5px 8px;
+      }
+      .not-started {
+        background-color: rgb(134,144,156);
+      }
+      .underway {
+        background-color: rgb(103,194,58);
+      }
+      .finish {
+        background-color: rgb(245,63,63);
+      }
     }
     .mask {
       position: absolute;

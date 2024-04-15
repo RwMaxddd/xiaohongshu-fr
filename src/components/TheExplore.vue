@@ -7,6 +7,9 @@
       <div class="btn" :class="{active:$route.meta.secondItemName === 'popularization'}" @click="changeItem('popularization')">
         <span>科普</span>
       </div>
+      <div class="btn" :class="{active:$route.meta.secondItemName === 'activity'}" @click="changeItem('activity')">
+        <span>汉服活动</span>
+      </div>
     </div>
     <router-view></router-view>
     <div class="loading-box" style="display: flex;justify-content: center">

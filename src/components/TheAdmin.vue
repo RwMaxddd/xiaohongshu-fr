@@ -67,7 +67,8 @@ import { agreeArticles } from '../api/articles'
 
 const typeObj = {
   discuss:'讨论',
-  popularization:'科普'
+  popularization:'科普',
+  activity:'活动',
 }
 const articleStore = useArticleStore()
 articleStore.loadExamineArticles()
